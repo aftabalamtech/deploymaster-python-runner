@@ -3,7 +3,7 @@ set -e
 
 echo "=== 🚀 DeployMaster Python Runner Starting ==="
 
-# 1. Validation: Env variables check karna
+# 1. Validation: Env variable check
 if [ -z "$GIT_REPO_URL" ]; then
     echo "❌ ERROR: GIT_REPO_URL environment variable is missing!"
     exit 1
@@ -44,7 +44,7 @@ elif [ -f "pyproject.toml" ]; then
     poetry install --no-root
 fi
 
-# 3. Dynamic Port Configuration
+# 3. Dynamic Port Setup
 PORT_TO_USE="${PORT:-8080}"
 export PORT=$PORT_TO_USE
 
