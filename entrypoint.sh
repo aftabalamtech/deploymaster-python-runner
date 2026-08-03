@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# Unbuffer outputs so logs print in exact order
+export PYTHONUNBUFFERED=1
+
 echo "=== 🚀 DeployMaster Python Runner Starting ==="
 
 # 1. Validation: Env variable check
@@ -25,13 +28,15 @@ fi
 BRANCH_NAME="${GIT_BRANCH:-main}"
 
 echo "📥 Cloning repository ($BRANCH_NAME)..."
+rm -rf /app/src
 git clone --depth 1 --branch "$BRANCH_NAME" "$TARGET_REPO" /app/src
 
-# -------------------------------------------------------------
-# 🎯 FIX: Add /app/src to PYTHONPATH & Working Directory
-# -------------------------------------------------------------
+# Navigate to cloned source directory and set PYTHONPATH
 cd /app/src
 export PYTHONPATH="/app/src:$PYTHONPATH"
+
+echo "📂 Repository Contents:"
+ls -la /app/src
 
 # 2. Dependencies installation
 if [ -f "requirements.txt" ]; then
@@ -55,6 +60,7 @@ export PORT=$PORT_TO_USE
 # 4. App Execution
 echo "=== 🔥 Launching User Application ==="
 
+# Fallback auto-detection if START_COMMAND is default or gunicorn app:app
 if [ -n "$START_COMMAND" ]; then
     echo "▶️ Executing Custom Command: $START_COMMAND"
     exec bash -c "$START_COMMAND"
