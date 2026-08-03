@@ -9,10 +9,10 @@ if [ -z "$GIT_REPO_URL" ]; then
     exit 1
 fi
 
-# Clean Repo URL (http:// ya https:// strip karna if present)
+# Clean Repo URL
 CLEAN_URL=$(echo "$GIT_REPO_URL" | sed -e 's|https://||' -e 's|http://||')
 
-# Private vs Public URL construct karna
+# Private vs Public URL construct
 if [ -n "$GITHUB_PAT" ]; then
     echo "🔑 Using GitHub PAT token for Private Repo access..."
     TARGET_REPO="https://${GITHUB_PAT}@${CLEAN_URL}"
@@ -21,13 +21,17 @@ else
     TARGET_REPO="https://${CLEAN_URL}"
 fi
 
-# Branch selection (Default: main)
+# Branch selection
 BRANCH_NAME="${GIT_BRANCH:-main}"
 
 echo "📥 Cloning repository ($BRANCH_NAME)..."
 git clone --depth 1 --branch "$BRANCH_NAME" "$TARGET_REPO" /app/src
 
+# -------------------------------------------------------------
+# 🎯 FIX: Add /app/src to PYTHONPATH & Working Directory
+# -------------------------------------------------------------
 cd /app/src
+export PYTHONPATH="/app/src:$PYTHONPATH"
 
 # 2. Dependencies installation
 if [ -f "requirements.txt" ]; then
